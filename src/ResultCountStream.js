@@ -10,7 +10,10 @@ export default class extends Writable {
     })
 
     this.resultCount = new Map(rules.reduce((a, b) => {
-      a.push([b, 0])
+      a.push([b, {
+        count: 0,
+        files: new Set()
+      }])
       return a
     }, []))
 
@@ -22,9 +25,13 @@ export default class extends Writable {
       if (e.fatal) {
         console.warn(e)
       } else {
-        let ruleId = e.ruleId
+        let val = map.get(e.ruleId)
 
-        map.set(ruleId, map.get(ruleId) + 1)
+        val.count++;
+        val.files.add(chunk.filename)
+        val.message = e.message
+
+        // console.log(e);
       }
     })
     next()

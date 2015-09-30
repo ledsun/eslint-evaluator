@@ -1,27 +1,9 @@
 import fs from 'fs'
 import minimist from 'minimist'
+import rules from './src/rules'
 import ReadStreamFilesReadable from './src/ReadStreamFilesReadable'
 import LintStream from './src/LintStream'
 import ResultCountStream from './src/ResultCountStream'
-
-const rules = [
-  'comma-dangle',
-  'no-cond-assign',
-  'no-console',
-  'no-constant-condition',
-  'no-control-regex',
-  'no-debugger',
-  'no-dupe-args',
-  'no-dupe-keys',
-  'no-duplicate-case',
-  'no-empty-character-class',
-  'no-empty',
-  'no-ex-assign',
-  'no-extra-boolean-cast',
-  'no-extra-parens',
-  'no-extra-semi',
-
-]
 
 let argv = minimist(process.argv.slice(2))
 
@@ -31,7 +13,7 @@ function dolint(err, data) {
   if (err) throw err
 
   const existsOpitons = JSON.parse(data)
-  let additionalRules = rules.filter(r => existsOpitons.rules[r] !== 2)
+  let additionalRules = rules.filter(r => existsOpitons.rules[r] === undefined)
 
   argsToStream(argv)
     .pipe(new LintStream(existsOpitons, additionalRules))
@@ -51,9 +33,9 @@ function outputResult() {
   let resultArray = Array.from(this.resultCount)
 
   resultArray.sort((a, b) => {
-    if (a[1] < b[1])
+    if (a[1].count < b[1].count)
       return -1
-    else if (b[1] < a[1])
+    else if (b[1].count < a[1].count)
       return 1
     return 0
   })
@@ -61,19 +43,42 @@ function outputResult() {
   // has error
   console.log('------ Rules have errors -------')
   console.log(resultArray
-    .filter(r => r[1] > 0)
+    .filter(r => r[1].count > 0)
     .map(r => {
-      return [r[1], r[0], `http://eslint.org/docs/rules/${r[0]}`]
+      let val = r[1]
+      return [
+        val.count,
+        r[0],
+        // val.files,
+        val.message,
+        `http://eslint.org/docs/rules/${r[0]}`
+      ]
     }))
+
+  //ligth
+  console.log('------ Rules have three error -------')
+  logJson(resultArray
+    .filter(r => r[1].count === 3))
+
+  console.log('------ Rules have two error -------')
+  logJson(resultArray
+    .filter(r => r[1].count === 2))
+
+  console.log('------ Rules have one error -------')
+  logJson(resultArray
+    .filter(r => r[1].count === 1))
 
   //safe
   console.log('------ Rules no errors -------')
-  let safeRule = resultArray
-    .filter(r => r[1] === 0)
-    .reduce((a, b) => {
-      a[b[0]] = 2
-      return a
-    }, {})
+  logJson(resultArray
+    .filter(r => r[1].count === 0))
+}
 
-  console.log(JSON.stringify(safeRule, null, 2));
+function logJson(array) {
+  let hash = array.reduce((a, b) => {
+    a[b[0]] = 2
+    return a
+  }, {})
+
+  console.log(JSON.stringify(hash, null, 2));
 }
