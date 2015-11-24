@@ -1,11 +1,14 @@
+# Install
+
+```
+npm install -g eslint-evaluator
+```
+
 # Usage
-
-Specify a directory of source codes and exisit eslintrc.
-
 For example:
 
 ```
-babel-node index.js ~/textae/src/ -c .eslintrc
+eslint-evaluator ~/textae/src/ -- -c ~/textae/eslintrc
 ```
 
 # output example
@@ -32,4 +35,15 @@ babel-node index.js ~/textae/src/ -c .eslintrc
   "no-empty": 2,
   "no-ex-assign": 2
 }
+```
+
+# For developement
+## Local Run
+
+Specify a directory of source codes and exisit eslintrc.
+
+For example:
+
+```
+npm start lib -- -c .eslintrc
 ```
