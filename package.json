@@ -1,7 +1,7 @@
 {
   "name": "eslint-evaluator",
   "description": "Specify a directory of source codes and exisit eslintrc.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "ledusn",
   "bin": {
     "eslint-evaluator": "./bin/cli.js"
